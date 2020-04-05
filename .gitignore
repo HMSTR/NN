@@ -1,0 +1,6 @@
+*.dnn
+*.dnn.ckp
+model
+RAW/
+OUT/
+data/

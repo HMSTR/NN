@@ -4,3 +4,4 @@ model
 RAW/
 OUT/
 data/
+__pycache__/

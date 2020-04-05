@@ -11,7 +11,7 @@ input_size = (channels,width,height)
 output_size = 11
 
 # Параметры для обучения
-TrainEpochs = 20000
+TrainEpochs = 200
 TrainEpochSize = 500
 TrainMinibatchSize = 64
 # Параметры для проверки

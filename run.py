@@ -2,6 +2,7 @@ import cntk as C
 import numpy as np
 import cv2
 import os,sys
+import shutil
 import datetime
 from random import random, shuffle, randint
 import cntk.io.transforms as xforms
@@ -82,6 +83,8 @@ def Work():
         
 
 if(os.path.isfile(modelName+'.model')):
+    if(not os.path.isdir("OUT")):
+        os.mkdir("OUT//")
     print('Previous model found')
     model = C.Function.load(modelName+'.model')
     trainer.restore_from_checkpoint(modelName+'.dnn')

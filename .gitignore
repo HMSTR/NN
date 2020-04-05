@@ -5,3 +5,4 @@ RAW/
 OUT/
 data/
 __pycache__/
+*.zip

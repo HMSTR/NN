@@ -39,16 +39,21 @@ def testAccuracy():
     metric_numer = 0
     metric_denom = 0
     sample_count = 0
+    avg = 0
     while sample_count < TestEpochSize:
         current_minibatch_size = min(TestMinibatchSize, TestEpochSize - sample_count)
         data = reader.next_minibatch(current_minibatch_size, input_map=input_map)
-        metric_numer += trainer.test_minibatch(data) * current_minibatch_size
+        avg = trainer.test_minibatch(data)
+        metric_numer += avg * current_minibatch_size
         metric_denom += current_minibatch_size
         sample_count += current_minibatch_size
         print(str(sample_count*100//TestEpochSize)+"%")
-    result = open("logTest.csv","a")
-    result.write("Epoch_size:;"+str(TestEpochSize)+';Minibatch_size:;'+str(TestMinibatchSize)+';Error:;'+str(metric_numer/metric_denom)+";\n")
-    result.close()
+    print("Epoch_size:"+str(TestEpochSize))
+    print('Minibatch_size:'+str(TestMinibatchSize))
+    print('Error:'+str(metric_numer/metric_denom)+'    numer:'+str(metric_numer)+'   denomer:'+str(metric_denom))
+    print('AVG:'+str(avg))
+    #print("Loss Avg:"+str(trainer.previous_minibatch_loss_average))
+    #print("Eval Avg:"+str(trainer.previous_minibatch_evaluation_average))
 
 
 # Если существует модель, то проверяем

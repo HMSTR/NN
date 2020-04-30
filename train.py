@@ -41,13 +41,16 @@ def train():
         outputs : reader.streams.labels
     }
 
+    loss = open("loss.csv","w")
     for epoch in range(TrainEpochs):
         sample_count = 0
         while sample_count < TrainEpochSize:
             data = reader.next_minibatch(min(TrainMinibatchSize, TrainEpochSize-sample_count), input_map=input_map)
             trainer.train_minibatch(data)
             sample_count += trainer.previous_minibatch_sample_count
-        print(str((epoch*100)//TrainEpochs)+"%")    
+        print(str((epoch*100)//TrainEpochs)+"%")
+        #loss.write(str(trainer.previous_minibatch_evaluation_average)+';\n')
+    loss.close()        
     model.save(modelName+'.model')
     trainer.save_checkpoint(modelName+'.dnn')
 print("TRAIN")

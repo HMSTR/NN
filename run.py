@@ -2,7 +2,6 @@ import cntk as C
 import numpy as np
 import cv2
 import os,sys
-import shutil
 import datetime
 from random import random, shuffle, randint
 import cntk.io.transforms as xforms
@@ -48,43 +47,47 @@ def Work():
                     cutted = cv2.add(cutted,edges)
                     coords.append([shiftX,shiftY])
                     pool.append(cutted.reshape(input_size).astype(np.float32))
-                    if(len(pool)>5000):
+                    if(len(pool)>7000):
                         print("Done:"+str((frm*100)//len(frames))+"%   "+"lines per frame:"+str((shiftY*100)//287)+"%")
                         result.extend(model.eval(np.asarray(pool)))
                         pool = []
 
         if(len(pool)>0):
             result.extend(model.eval(np.asarray(pool)))
-        if(maxScheme):
-            best = []
-            for x in range(0,output_size):
-                best.append(0)
-            for inst in range(len(result)):
-                for x in range(0,output_size):
-                    if(result[inst][x]>result[best[x]][x]):
-                        best[x] = inst
-            if(len(coords)>0):
-                #Для нормальной работы: for x in range(1,output_size-1):
-                for x in range(0,2):
-                    val = best[x]
-                    X = coords[val][0]
-                    Y = coords[val][1]
-                    A = (X,Y)
-                    B = (X+33,Y+33)
-                    imgFinal = cv2.rectangle(imgFinal,A,B,col[x],1)
-        else:
-            for inst in range(len(result)):
-                for x in range(0,output_size):
-                    if(result[inst][x]>0.2):
-                        frameCoord = coords[inst]
-                        color = col[x] 
-                        imgFinal = cv2.rectangle(imgFinal,(frameCoord[0],frameCoord[1]),(frameCoord[0]+33,frameCoord[1]+33),color,1)
+        if(len(result)>0):
+            if(maxScheme):
+                bestFrames = np.zeros(output_size).astype(np.int)
+                for part in range(0,len(result)):
+                    for brainParts in range(0,output_size):
+                        bestBrainPartIndex = bestFrames[brainParts]
+                        bestBrainPartValue = result[bestBrainPartIndex][brainParts]
+                        if(result[part][brainParts]>bestBrainPartValue):
+                            bestFrames[brainParts] = part
+                if(len(coords)>0):
+                    #Для нормальной работы: for x in range(1,output_size-1):
+                    for x in range(0,output_size):
+                        val = bestFrames[x]
+                        XCoord = coords[val][0]
+                        YCoord = coords[val][1]
+                        A = (XCoord,YCoord)
+                        print(A)
+                        B = (XCoord+33,YCoord+33)
+                        imgFinal = cv2.rectangle(imgFinal,A,B,col[x],1)
+            else:
+                for inst in range(len(result)):
+                    print(result[inst]) 
+                    for x in range(1,output_size):
+                        
+                        if(result[inst][x]>100):
+
+                            frameCoord = coords[inst]
+                            color = col[x] 
+                            imgFinal = cv2.rectangle(imgFinal,(frameCoord[0],frameCoord[1]),(frameCoord[0]+33,frameCoord[1]+33),color,1)
+
         cv2.imwrite('OUT\\'+str(frm)+".jpg",imgFinal)
         
 
 if(os.path.isfile(modelName+'.model')):
-    if(not os.path.isdir("OUT")):
-        os.mkdir("OUT//")
     print('Previous model found')
     model = C.Function.load(modelName+'.model')
     trainer.restore_from_checkpoint(modelName+'.dnn')
